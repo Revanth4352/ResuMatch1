@@ -14,7 +14,7 @@ const app = express();
 const port = 3000;
 
 // Middleware
-app.use(express.static(__dirname));
+app.use(express.static('./'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // Parse JSON bodies
 app.use(session({
@@ -33,14 +33,14 @@ const db = mysql.createConnection({
 
 // Multer setup
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads'),
+  destination: (req, file, cb) => cb(null, './uploads'),
   filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
 });
 const upload = multer({ storage });
 
 // Create uploads directory if it doesn't exist
-if (!fs.existsSync('uploads')) {
-  fs.mkdirSync('uploads');
+if (!fs.existsSync('./uploads')) {
+  fs.mkdirSync('./uploads');
 }
 
 // Email transporter setup
@@ -58,7 +58,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  res.sendFile(path.join(__dirname, 'register.html'));
+  res.sendFile(path.join('./', 'register.html'));
 });
 
 app.post('/register', (req, res) => {
@@ -74,7 +74,7 @@ app.post('/register', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'login.html'));
+  res.sendFile(path.join('./', 'login.html'));
 });
 
 app.post('/login', (req, res) => {
@@ -96,7 +96,7 @@ app.post('/login', (req, res) => {
 
 app.get('/home', (req, res) => {
   if (!req.session.user) return res.redirect('/login');
-  res.sendFile(path.join(__dirname, 'home.html'));
+  res.sendFile(path.join('./', 'home.html'));
 });
 
 app.post('/upload-resume', upload.single('resume'), async (req, res) => {
@@ -394,7 +394,7 @@ function extractEducation(text) {
 
 // Routes (Recruiters)
 app.get('/recruiter-register', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'recruiter-register.html'));
+  res.sendFile(path.join('./', 'recruiter-register.html'));
 });
 
 app.post('/recruiter-register', async (req, res) => {
@@ -416,7 +416,7 @@ app.post('/recruiter-register', async (req, res) => {
 });
 
 app.get('/recruiter-login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'recruiter-login.html'));
+  res.sendFile(path.join('./', 'recruiter-login.html'));
 });
 
 app.post('/recruiter-login', async (req, res) => {
@@ -444,7 +444,7 @@ app.post('/recruiter-login', async (req, res) => {
 
 app.get('/recruiter-home', (req, res) => {
   if (!req.session.recruiter) return res.redirect('/recruiter-login');
-  res.sendFile(path.join(__dirname, 'public', 'recruiter-home.html'));
+  res.sendFile(path.join('./', 'recruiter-home.html'));
 });
 
 app.post('/search-candidates', async (req, res) => {
