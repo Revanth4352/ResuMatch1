@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Recruiter Registration</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      width: 500px;
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .container:hover {
+      transform: translateY(-5px);
+    }
+
+    .header {
+      text-align: center;
+      color: #2c3e50;
+      font-size: 2em;
+      font-weight: 600;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .header:after {
+      content: '';
+      display: block;
+      width: 50px;
+      height: 3px;
+      background: #4CAF50;
+      margin: 10px auto;
+      border-radius: 3px;
+    }
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: 500;
+      color: #2c3e50;
+      margin-bottom: 8px;
+      font-size: 0.9em;
+    }
+
+    .input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1em;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+
+    .input:focus {
+      border-color: #4CAF50;
+      box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+      outline: none;
+    }
+
+    .button {
+      width: 100%;
+      padding: 12px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .button:hover {
+      background: #2e7d32;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+    }
+
+    .button:active {
+      transform: translateY(0);
+    }
+
+    .button .ripple {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple 0.6s linear;
+      pointer-events: none;
+    }
+
+    @keyframes ripple {
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 20px;
+      color: #666;
+    }
+
+    .green-link {
+      color: #4CAF50;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .green-link:hover {
+      color: #2e7d32;
+      text-decoration: underline;
+    }
+
+    .icon-input {
+      position: relative;
+    }
+
+    .icon-input i {
+      position: absolute;
+      top: 12px;
+      left: 15px;
+      color: #999;
+      transition: color 0.3s ease;
+    }
+
+    .icon-input input {
+      padding-left: 40px;
+    }
+
+    .icon-input input:focus + i {
+      color: #4CAF50;
+    }
+
+    .error-message {
+      color: #e74c3c;
+      font-size: 0.85em;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .input-error {
+      border-color: #e74c3c !important;
+    }
+
+    .input-error:focus {
+      box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2) !important;
+    }
+
+    .success-message {
+      color: #4CAF50;
+      font-size: 0.85em;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .loading {
+      position: relative;
+      pointer-events: none;
+    }
+
+    .loading:after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      top: 50%;
+      left: 50%;
+      margin: -10px 0 0 -10px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .password-strength {
+      height: 5px;
+      margin-top: 5px;
+      border-radius: 3px;
+      transition: all 0.3s ease;
+    }
+
+    .strength-weak {
+      background-color: #e74c3c;
+      width: 30%;
+    }
+
+    .strength-medium {
+      background-color: #f39c12;
+      width: 60%;
+    }
+
+    .strength-strong {
+      background-color: #4CAF50;
+      width: 100%;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        width: 90%;
+        padding: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 class="header">Recruiter Registration</h2>
+    <form action="/recruiter-register" method="POST" class="form" id="registerForm">
+      <div class="input-group">
+        <label for="name">Full Name</label>
+        <div class="icon-input">
+          <i class="fas fa-user"></i>
+          <input type="text" id="name" name="name" class="input" placeholder="Enter your full name" required>
+        </div>
+        <div class="error-message" id="nameError">Full name is required</div>
+      </div>
+
+      <div class="input-group">
+        <label for="email">Email</label>
+        <div class="icon-input">
+          <i class="fas fa-envelope"></i>
+          <input type="email" id="email" name="email" class="input" placeholder="Enter your email" required>
+        </div>
+        <div class="error-message" id="emailError">Please enter a valid email address</div>
+      </div>
+
+      <div class="input-group">
+        <label for="password">Password</label>
+        <div class="icon-input">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="password" name="password" class="input" placeholder="Create a password" required>
+        </div>
+        <div class="password-strength" id="passwordStrength"></div>
+        <div class="error-message" id="passwordError">Password must be at least 6 characters</div>
+      </div>
+
+      <div class="input-group">
+        <label for="company">Company</label>
+        <div class="icon-input">
+          <i class="fas fa-building"></i>
+          <input type="text" id="company" name="company" class="input" placeholder="Enter your company name">
+        </div>
+        <div class="error-message" id="companyError">Company name is required</div>
+      </div>
+
+      <button type="submit" class="button" id="submitBtn">Register</button>
+    </form>
+    <p class="link">Already have an account? <a href="/recruiter-login" class="green-link">Login</a></p>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('registerForm');
+      const nameInput = document.getElementById('name');
+      const emailInput = document.getElementById('email');
+      const passwordInput = document.getElementById('password');
+      const companyInput = document.getElementById('company');
+      const submitBtn = document.getElementById('submitBtn');
+      const passwordStrength = document.getElementById('passwordStrength');
+
+      // Error elements
+      const nameError = document.getElementById('nameError');
+      const emailError = document.getElementById('emailError');
+      const passwordError = document.getElementById('passwordError');
+      const companyError = document.getElementById('companyError');
+
+      // Name validation
+      nameInput.addEventListener('input', function() {
+        if (this.value.trim() === '') {
+          nameError.style.display = 'block';
+          this.classList.add('input-error');
+        } else {
+          nameError.style.display = 'none';
+          this.classList.remove('input-error');
+        }
+      });
+
+      // Email validation
+      emailInput.addEventListener('input', function() {
+        const email = this.value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (!emailRegex.test(email)) {
+          emailError.style.display = 'block';
+          this.classList.add('input-error');
+        } else {
+          emailError.style.display = 'none';
+          this.classList.remove('input-error');
+        }
+      });
+
+      // Password validation and strength indicator
+      passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        
+        // Basic validation
+        if (password.length < 6) {
+          passwordError.style.display = 'block';
+          this.classList.add('input-error');
+          passwordStrength.className = 'password-strength';
+        } else {
+          passwordError.style.display = 'none';
+          this.classList.remove('input-error');
+          
+          // Password strength
+          let strength = 0;
+          
+          // Length check
+          if (password.length >= 8) strength++;
+          
+          // Contains number
+          if (/\d/.test(password)) strength++;
+          
+          // Contains letter
+          if (/[a-zA-Z]/.test(password)) strength++;
+          
+          // Contains special character
+          if (/[^A-Za-z0-9]/.test(password)) strength++;
+          
+          // Update strength indicator
+          passwordStrength.className = 'password-strength';
+          if (strength <= 2) {
+            passwordStrength.classList.add('strength-weak');
+          } else if (strength === 3) {
+            passwordStrength.classList.add('strength-medium');
+          } else {
+            passwordStrength.classList.add('strength-strong');
+          }
+        }
+      });
+
+      // Company validation
+      companyInput.addEventListener('input', function() {
+        if (this.value.trim() === '') {
+          companyError.style.display = 'block';
+          this.classList.add('input-error');
+        } else {
+          companyError.style.display = 'none';
+          this.classList.remove('input-error');
+        }
+      });
+
+      // Form submission with validation
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validate all fields
+        let isValid = true;
+        
+        // Name validation
+        if (nameInput.value.trim() === '') {
+          nameError.style.display = 'block';
+          nameInput.classList.add('input-error');
+          isValid = false;
+        }
+        
+        // Email validation
+        const email = emailInput.value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          emailError.style.display = 'block';
+          emailInput.classList.add('input-error');
+          isValid = false;
+        }
+        
+        // Password validation
+        if (passwordInput.value.length < 6) {
+          passwordError.style.display = 'block';
+          passwordInput.classList.add('input-error');
+          isValid = false;
+        }
+        
+        // Company validation
+        if (companyInput.value.trim() === '') {
+          companyError.style.display = 'block';
+          companyInput.classList.add('input-error');
+          isValid = false;
+        }
+        
+        if (isValid) {
+          // Add loading state
+          submitBtn.classList.add('loading');
+          submitBtn.textContent = '';
+          
+          // Simulate loading (remove in production)
+          setTimeout(() => {
+            // Submit the form
+            form.submit();
+          }, 1000);
+        }
+      });
+
+      // Add ripple effect to button
+      submitBtn.addEventListener('click', function(e) {
+        const x = e.clientX - e.target.offsetLeft;
+        const y = e.clientY - e.target.offsetTop;
+        
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        
+        this.appendChild(ripple);
+        
+        setTimeout(() => {
+          ripple.remove();
+        }, 600);
+      });
+    });
+  </script>
+</body>
+</html>

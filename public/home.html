@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Upload Resume</title>
+  <link rel="stylesheet" href="/styles1.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+      color: #2c3e50;
+      font-size: 2.2em;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .header:after {
+      content: '';
+      display: block;
+      width: 50px;
+      height: 3px;
+      background: #4CAF50;
+      margin: 10px auto;
+      border-radius: 3px;
+    }
+
+    .upload-box {
+      border: 2px dashed #4CAF50;
+      border-radius: 15px;
+      padding: 40px;
+      text-align: center;
+      background-color: #f8fff8;
+      margin: 20px auto;
+      width: 80%;
+      color: #2c3e50;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-box:hover, .upload-box.dragover {
+      background-color: #f0fff0;
+      border-color: #2e7d32;
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(76, 175, 80, 0.2);
+    }
+
+    .upload-icon {
+      font-size: 64px;
+      color: #4CAF50;
+      margin-bottom: 20px;
+      transition: transform 0.3s ease;
+    }
+
+    .upload-box:hover .upload-icon {
+      transform: scale(1.1);
+    }
+
+    .upload-box h2 {
+      color: #2c3e50;
+      font-size: 1.8em;
+      margin-bottom: 15px;
+      font-weight: 500;
+    }
+
+    .upload-box p {
+      margin: 10px 0;
+      color: #666;
+      font-size: 1.1em;
+    }
+
+    .button {
+      background: #4CAF50;
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .button:hover {
+      background: #2e7d32;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+    }
+
+    .button.secondary {
+      background: #6c757d;
+    }
+
+    .button.secondary:hover {
+      background: #5a6268;
+    }
+
+    .button.loading {
+      position: relative;
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    .button.loading:after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      top: 50%;
+      left: 50%;
+      margin: -10px 0 0 -10px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .file-info {
+      margin: 20px 0;
+      padding: 15px;
+      background-color: #e8f5e9;
+      border-radius: 10px;
+      display: none;
+      animation: slideDown 0.3s ease;
+      border-left: 4px solid #4CAF50;
+    }
+
+    .submit-section {
+      margin-top: 25px;
+      display: none;
+      animation: slideUp 0.3s ease;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .notification {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      display: none;
+      animation: slideUp 0.3s ease;
+    }
+
+    .notification.success {
+      background-color: #d4edda;
+      color: #155724;
+      border-left: 4px solid #28a745;
+    }
+
+    .notification.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border-left: 4px solid #dc3545;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        margin: 20px auto;
+        padding: 20px;
+      }
+
+      .upload-box {
+        width: 90%;
+        padding: 30px;
+      }
+
+      .header {
+        font-size: 1.8em;
+      }
+
+      .button-container {
+        flex-direction: column;
+      }
+
+      .button {
+        width: 100%;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <h2 class="header">Upload Resume</h2>
+    <div class="upload-box" id="dropZone">
+      <i class="fas fa-cloud-upload-alt upload-icon"></i>
+      <h2>Welcome! Upload Your Resume</h2>
+      <p>Drag and drop your resume here</p>
+      <p>or</p>
+      <button type="button" class="button" onclick="document.getElementById('fileInput').click()">
+        <i class="fas fa-folder-open"></i> Browse Files
+      </button>
+      <input type="file" id="fileInput" accept=".pdf" />
+      <div class="file-info" id="fileInfo"></div>
+      <div class="submit-section" id="submitSection">
+        <div class="button-container">
+          <button type="button" class="button secondary" onclick="cancelUpload()">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button type="button" class="button" onclick="submitResume()">
+            <i class="fas fa-check"></i> Submit Resume
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="notification" class="notification"></div>
+  </div>
+
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const submitSection = document.getElementById('submitSection');
+    const notification = document.getElementById('notification');
+    let selectedFile = null;
+
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, preventDefaults, false);
+      document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // Highlight drop zone when item is dragged over it
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, unhighlight, false);
+    });
+
+    // Handle dropped files
+    dropZone.addEventListener('drop', handleDrop, false);
+    fileInput.addEventListener('change', handleFiles, false);
+
+    function preventDefaults (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    function highlight(e) {
+      dropZone.classList.add('dragover');
+    }
+
+    function unhighlight(e) {
+      dropZone.classList.remove('dragover');
+    }
+
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      handleFiles({ target: { files: files } });
+    }
+
+    function handleFiles(e) {
+      const files = e.target.files;
+      if (files.length > 0) {
+        const file = files[0];
+        if (file.type === 'application/pdf') {
+          selectedFile = file;
+          fileInfo.innerHTML = `<i class="fas fa-file-pdf"></i> Selected file: ${file.name}`;
+          fileInfo.style.display = 'block';
+          submitSection.style.display = 'block';
+        } else {
+          fileInfo.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please select a PDF file';
+          fileInfo.style.display = 'block';
+          notification.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error: Please upload a PDF file';
+          notification.className = 'notification error';
+          notification.style.display = 'block';
+          submitSection.style.display = 'none';
+        }
+      }
+    }
+
+    function cancelUpload() {
+      selectedFile = null;
+      fileInput.value = '';
+      fileInfo.style.display = 'none';
+      submitSection.style.display = 'none';
+      notification.style.display = 'none';
+    }
+
+    async function submitResume() {
+      if (!selectedFile) {
+        notification.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please select a file first';
+        notification.className = 'notification error';
+        notification.style.display = 'block';
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('resume', selectedFile);
+      notification.style.display = 'none';
+      
+      // Add loading state to submit button
+      const submitButton = document.querySelector('.button:not(.secondary)');
+      submitButton.classList.add('loading');
+      submitButton.textContent = 'Processing...';
+      submitButton.disabled = true;
+
+      try {
+        const response = await fetch('/upload-resume', {
+          method: 'POST',
+          body: formData
+        });
+        const result = await response.json();
+        if (result.success) {
+          notification.innerHTML = '<i class="fas fa-check-circle"></i> Resume processed successfully!';
+          notification.className = 'notification success';
+          fileInfo.style.display = 'none';
+          submitSection.style.display = 'none';
+          selectedFile = null;
+          fileInput.value = '';
+        } else {
+          notification.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error: ${result.message}`;
+          notification.className = 'notification error';
+        }
+        notification.style.display = 'block';
+      } catch (error) {
+        notification.innerHTML = '<i class="fas fa-exclamation-circle"></i> An error occurred while uploading the resume. Please try again.';
+        notification.className = 'notification error';
+        notification.style.display = 'block';
+        console.error('Upload error:', error);
+      } finally {
+        // Remove loading state
+        submitButton.classList.remove('loading');
+        submitButton.textContent = 'Submit Resume';
+        submitButton.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Recruiter Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1000px;
+      margin: 20px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .header {
+      text-align: center;
+      color: #2c3e50;
+      font-size: 2em;
+      font-weight: 600;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .header:after {
+      content: '';
+      display: block;
+      width: 50px;
+      height: 3px;
+      background: #4CAF50;
+      margin: 10px auto;
+      border-radius: 3px;
+    }
+
+    .job-form {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .job-form-wrapper {
+      position: relative;
+      transition: transform 0.3s ease;
+    }
+
+    .job-form-wrapper:hover {
+      transform: translateY(-5px);
+    }
+
+    .job-form-content {
+      background: #f8f9fa;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .job-form-wrapper:hover .job-form-content {
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: 500;
+      color: #2c3e50;
+      margin-bottom: 8px;
+      font-size: 0.9em;
+    }
+
+    .textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1em;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+      min-height: 150px;
+      resize: vertical;
+      position: relative;
+      z-index: 2;
+    }
+
+    .textarea:focus {
+      border-color: #4CAF50;
+      box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+      outline: none;
+    }
+
+    .button {
+      padding: 12px 25px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .button:hover {
+      background: #2e7d32;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+    }
+
+    .button:active {
+      transform: translateY(0);
+    }
+
+    .button.loading {
+      position: relative;
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    .button.loading:after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      top: 50%;
+      left: 50%;
+      margin: -10px 0 0 -10px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .results {
+      margin-top: 30px;
+    }
+
+    .subheader {
+      color: #2c3e50;
+      font-size: 1.5em;
+      margin-bottom: 20px;
+    }
+
+    .candidate-card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 15px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .candidate-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .candidate-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .candidate-name {
+      font-size: 1.2em;
+      font-weight: 500;
+      color: #2c3e50;
+    }
+
+    .candidate-skills {
+      color: #666;
+      margin-bottom: 15px;
+    }
+
+    .candidate-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .action-button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      font-size: 0.9em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .action-button.shortlist {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .action-button.interview {
+      background: #2196F3;
+      color: white;
+    }
+
+    .action-button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .match-score {
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 0.9em;
+      font-weight: 500;
+    }
+
+    .no-results {
+      text-align: center;
+      color: #666;
+      padding: 30px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .error-message {
+      color: #e74c3c;
+      background: #fde8e8;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+
+      .candidate-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .candidate-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 class="header">Welcome, Recruiter!</h2>
+    
+    <div class="job-form">
+      <div class="form-group">
+        <label for="jobDescription">Job Description:</label>
+        <textarea id="jobDescription" class="textarea" placeholder="Enter the job description, requirements, and qualifications..."></textarea>
+      </div>
+      <div class="error-message" id="errorMessage"></div>
+      <div class="button-container">
+        <button onclick="searchCandidates()" class="button" id="searchButton">Search Candidates</button>
+      </div>
+    </div>
+
+    <div id="results" class="results"></div>
+  </div>
+
+  <script>
+    function searchCandidates() {
+      const jobDescription = document.getElementById('jobDescription').value.trim();
+      const errorMessage = document.getElementById('errorMessage');
+      const resultsDiv = document.getElementById('results');
+      const searchButton = document.getElementById('searchButton');
+      
+      if (!jobDescription) {
+        errorMessage.textContent = 'Please enter a job description';
+        errorMessage.style.display = 'block';
+        return;
+      }
+      
+      errorMessage.style.display = 'none';
+      searchButton.classList.add('loading');
+      searchButton.textContent = 'Searching...';
+      
+      fetch('/search-candidates', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ jobDescription })
+      })
+      .then(response => response.json())
+      .then(data => {
+        searchButton.classList.remove('loading');
+        searchButton.textContent = 'Search Candidates';
+        
+      if (data.success) {
+          displayResults(data.candidates);
+      } else {
+          errorMessage.textContent = data.message || 'An error occurred';
+          errorMessage.style.display = 'block';
+        }
+      })
+      .catch(error => {
+        searchButton.classList.remove('loading');
+        searchButton.textContent = 'Search Candidates';
+        errorMessage.textContent = 'An error occurred while searching';
+        errorMessage.style.display = 'block';
+        console.error('Error:', error);
+      });
+    }
+    
+    function displayResults(candidates) {
+      const resultsDiv = document.getElementById('results');
+      const jobDescription = document.getElementById('jobDescription').value.trim().toLowerCase();
+      
+      if (candidates.length === 0) {
+        resultsDiv.innerHTML = '<p class="no-results">No matching candidates found.</p>';
+        return;
+      }
+      
+      let html = '<h3 class="subheader">Matching Candidates</h3>';
+      
+      candidates.forEach(candidate => {
+        // Calculate match percentage based on skills
+        const candidateSkills = candidate.skills.toLowerCase();
+        const jobSkills = jobDescription.split(/[\s,]+/).filter(skill => skill.length > 0);
+        let matchedSkills = 0;
+        
+        jobSkills.forEach(skill => {
+          if (candidateSkills.includes(skill)) {
+            matchedSkills++;
+          }
+        });
+        
+        const matchPercentage = jobSkills.length > 0 
+          ? Math.round((matchedSkills / jobSkills.length) * 100) 
+          : 0;
+        
+        html += `
+          <div class="candidate-card">
+            <div class="candidate-header">
+              <h4 class="candidate-name">${candidate.name}</h4>
+              <span class="match-score">${matchPercentage}% Match</span>
+            </div>
+            <p class="candidate-skills"><strong>Skills:</strong> ${candidate.skills}</p>
+            <p><strong>Education:</strong> ${candidate.education}</p>
+            <p><strong>Experience:</strong> ${candidate.experience}</p>
+            <div class="candidate-actions">
+              <button onclick="shortlistCandidate(${candidate.id})" class="action-button shortlist">Shortlist</button>
+              <button onclick="scheduleInterview(${candidate.id})" class="action-button interview">Schedule Interview</button>
+            </div>
+          </div>
+        `;
+      });
+      
+      resultsDiv.innerHTML = html;
+    }
+
+    function shortlistCandidate(candidateId) {
+      fetch('/shortlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ candidateId })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Candidate shortlisted successfully!');
+        } else {
+          alert(data.message || 'Failed to shortlist candidate');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while shortlisting the candidate');
+      });
+    }
+    
+    function scheduleInterview(candidateId) {
+      fetch('/schedule-interview', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ candidateId })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Interview scheduled successfully!');
+        } else {
+          alert(data.message || 'Failed to schedule interview');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while scheduling the interview');
+      });
+    }
+  </script>
+</body>
+</html>
