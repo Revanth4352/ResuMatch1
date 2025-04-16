@@ -14,7 +14,7 @@ const app = express();
 const port = 3000;
 
 // Middleware
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // Parse JSON bodies
 app.use(session({
@@ -58,7 +58,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'register.html'));
+  res.sendFile(path.join(__dirname, 'register.html'));
 });
 
 app.post('/register', (req, res) => {
@@ -74,7 +74,7 @@ app.post('/register', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+  res.sendFile(path.join(__dirname, 'login.html'));
 });
 
 app.post('/login', (req, res) => {
@@ -96,7 +96,7 @@ app.post('/login', (req, res) => {
 
 app.get('/home', (req, res) => {
   if (!req.session.user) return res.redirect('/login');
-  res.sendFile(path.join(__dirname, 'public', 'home.html'));
+  res.sendFile(path.join(__dirname, 'home.html'));
 });
 
 app.post('/upload-resume', upload.single('resume'), async (req, res) => {
