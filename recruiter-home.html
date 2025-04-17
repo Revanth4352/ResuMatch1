@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Recruiter Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
@@ -12,10 +13,7 @@
       background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
       min-height: 100vh;
       margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      padding: 20px;
     }
 
     .container {
@@ -26,12 +24,6 @@
       background: white;
       border-radius: 15px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .container:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
     }
 
     .header {
@@ -54,43 +46,14 @@
     }
 
     .job-form {
-      background: white;
-      padding: 25px;
-      border-radius: 10px;
-      margin-bottom: 30px;
-      position: relative;
-    }
-
-    .job-form-wrapper {
-      position: relative;
-      transition: transform 0.3s ease;
-    }
-
-    .job-form-wrapper:hover {
-      transform: translateY(-5px);
-    }
-
-    .job-form-content {
       background: #f8f9fa;
       padding: 25px;
       border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    }
-
-    .job-form-wrapper:hover .job-form-content {
-      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
     }
 
     .form-group {
       margin-bottom: 20px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .button-container {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
     }
 
     label {
@@ -98,7 +61,6 @@
       font-weight: 500;
       color: #2c3e50;
       margin-bottom: 8px;
-      font-size: 0.9em;
     }
 
     .textarea {
@@ -107,12 +69,8 @@
       border: 1px solid #ddd;
       border-radius: 8px;
       font-size: 1em;
-      transition: all 0.3s ease;
-      box-sizing: border-box;
       min-height: 150px;
       resize: vertical;
-      position: relative;
-      z-index: 2;
     }
 
     .textarea:focus {
@@ -131,18 +89,12 @@
       font-weight: 500;
       cursor: pointer;
       transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 1px;
     }
 
     .button:hover {
       background: #2e7d32;
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
-    }
-
-    .button:active {
-      transform: translateY(0);
     }
 
     .button.loading {
@@ -171,94 +123,60 @@
       }
     }
 
-    .results {
-      margin-top: 30px;
-    }
-
-    .subheader {
-      color: #2c3e50;
-      font-size: 1.5em;
-      margin-bottom: 20px;
-    }
-
-    .candidate-card {
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 15px;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-
-    .candidate-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .candidate-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-
-    .candidate-name {
-      font-size: 1.2em;
-      font-weight: 500;
-      color: #2c3e50;
-    }
-
-    .candidate-skills {
-      color: #666;
-      margin-bottom: 15px;
-    }
-
-    .candidate-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .action-button {
-      padding: 8px 15px;
+    .card {
       border: none;
-      border-radius: 5px;
-      font-size: 0.9em;
-      cursor: pointer;
-      transition: all 0.3s ease;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      transition: transform 0.3s ease;
     }
 
-    .action-button.shortlist {
-      background: #4CAF50;
-      color: white;
-    }
-
-    .action-button.interview {
-      background: #2196F3;
-      color: white;
-    }
-
-    .action-button:hover {
-      opacity: 0.9;
-      transform: translateY(-1px);
+    .card:hover {
+      transform: translateY(-5px);
     }
 
     .match-score {
-      background: #e8f5e9;
-      color: #2e7d32;
-      padding: 5px 10px;
-      border-radius: 15px;
-      font-size: 0.9em;
-      font-weight: 500;
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      padding: 10px 15px;
+      border-radius: 8px;
+      text-align: center;
+      min-width: 80px;
     }
 
-    .no-results {
-      text-align: center;
-      color: #666;
-      padding: 30px;
-      background: #f8f9fa;
-      border-radius: 8px;
+    .match-score h3 {
+      margin: 0;
+      font-size: 1.5em;
+    }
+
+    .match-score small {
+      opacity: 0.8;
+    }
+
+    .match-details {
+      font-size: 0.8em;
+      margin-top: 5px;
+    }
+
+    .btn-shortlist {
+      background-color: #2196F3;
+      color: white;
+    }
+
+    .btn-shortlist:hover {
+      background-color: #1976D2;
+      color: white;
+    }
+
+    .btn-interview {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .btn-interview:hover {
+      background-color: #2e7d32;
+      color: white;
     }
 
     .error-message {
@@ -270,21 +188,26 @@
       display: none;
     }
 
-    @media (max-width: 768px) {
-      .container {
-        padding: 15px;
-      }
+    .criteria-summary {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+    }
 
-      .candidate-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-      }
+    .criteria-summary h5 {
+      color: #2c3e50;
+      margin-bottom: 15px;
+    }
 
-      .candidate-actions {
-        width: 100%;
-        justify-content: space-between;
-      }
+    .criteria-summary ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .criteria-summary li {
+      margin-bottom: 5px;
+      color: #555;
     }
   </style>
 </head>
@@ -292,13 +215,19 @@
   <div class="container">
     <h2 class="header">Welcome, Recruiter!</h2>
     
+    <div class="text-center mb-4">
+      <a href="/shortlisted-candidates" class="button" style="text-decoration: none; display: inline-block;">
+        <i class="fas fa-list"></i> View Shortlisted Candidates
+      </a>
+    </div>
+    
     <div class="job-form">
       <div class="form-group">
         <label for="jobDescription">Job Description:</label>
         <textarea id="jobDescription" class="textarea" placeholder="Enter the job description, requirements, and qualifications..."></textarea>
       </div>
       <div class="error-message" id="errorMessage"></div>
-      <div class="button-container">
+      <div class="text-center">
         <button onclick="searchCandidates()" class="button" id="searchButton">Search Candidates</button>
       </div>
     </div>
@@ -335,9 +264,9 @@
         searchButton.classList.remove('loading');
         searchButton.textContent = 'Search Candidates';
         
-      if (data.success) {
-          displayResults(data.candidates);
-      } else {
+        if (data.success) {
+          displayResults(data.candidates, data.jobCriteria);
+        } else {
           errorMessage.textContent = data.message || 'An error occurred';
           errorMessage.style.display = 'block';
         }
@@ -351,51 +280,92 @@
       });
     }
     
-    function displayResults(candidates) {
-      const resultsDiv = document.getElementById('results');
-      const jobDescription = document.getElementById('jobDescription').value.trim().toLowerCase();
-      
+    function displayResults(candidates, jobCriteria) {
+      const resultsContainer = document.getElementById('results');
+      resultsContainer.innerHTML = '';
+
       if (candidates.length === 0) {
-        resultsDiv.innerHTML = '<p class="no-results">No matching candidates found.</p>';
+        resultsContainer.innerHTML = '<p class="text-center">No matching candidates found.</p>';
         return;
       }
-      
-      let html = '<h3 class="subheader">Matching Candidates</h3>';
-      
-      candidates.forEach(candidate => {
-        // Calculate match percentage based on skills
-        const candidateSkills = candidate.skills.toLowerCase();
-        const jobSkills = jobDescription.split(/[\s,]+/).filter(skill => skill.length > 0);
-        let matchedSkills = 0;
-        
-        jobSkills.forEach(skill => {
-          if (candidateSkills.includes(skill)) {
-            matchedSkills++;
-          }
-        });
-        
-        const matchPercentage = jobSkills.length > 0 
-          ? Math.round((matchedSkills / jobSkills.length) * 100) 
-          : 0;
-        
-        html += `
-          <div class="candidate-card">
-            <div class="candidate-header">
-              <h4 class="candidate-name">${candidate.name}</h4>
-              <span class="match-score">${matchPercentage}% Match</span>
+
+      // Show criteria summary if available
+      if (jobCriteria && (jobCriteria.required_skills?.length > 0 || jobCriteria.preferred_skills?.length > 0)) {
+        const criteriaSummary = document.createElement('div');
+        criteriaSummary.className = 'criteria-summary';
+        criteriaSummary.innerHTML = `
+          <h5>Job Requirements Summary</h5>
+          <div class="row">
+            <div class="col-md-6">
+              <h6>Required Skills</h6>
+              <ul>
+                ${(jobCriteria.required_skills || []).map(skill => `<li>• ${skill}</li>`).join('')}
+              </ul>
             </div>
-            <p class="candidate-skills"><strong>Skills:</strong> ${candidate.skills}</p>
-            <p><strong>Education:</strong> ${candidate.education}</p>
-            <p><strong>Experience:</strong> ${candidate.experience}</p>
-            <div class="candidate-actions">
-              <button onclick="shortlistCandidate(${candidate.id})" class="action-button shortlist">Shortlist</button>
-              <button onclick="scheduleInterview(${candidate.id})" class="action-button interview">Schedule Interview</button>
+            <div class="col-md-6">
+              <h6>Preferred Skills</h6>
+              <ul>
+                ${(jobCriteria.preferred_skills || []).map(skill => `<li>• ${skill}</li>`).join('')}
+              </ul>
             </div>
           </div>
         `;
+        resultsContainer.appendChild(criteriaSummary);
+      }
+
+      candidates.forEach(candidate => {
+        const candidateCard = document.createElement('div');
+        candidateCard.className = 'card';
+        
+        let matchColor = 'bg-danger';
+        if (candidate.matchPercentage >= 80) matchColor = 'bg-success';
+        else if (candidate.matchPercentage >= 60) matchColor = 'bg-warning';
+        else if (candidate.matchPercentage >= 40) matchColor = 'bg-info';
+        
+        let matchDetails = '';
+        if (candidate.matchDetails) {
+          const { requiredSkills, preferredSkills } = candidate.matchDetails;
+          if (requiredSkills.total > 0 || preferredSkills.total > 0) {
+            matchDetails = `
+              <div class="match-details">
+                <small>
+                  Required: ${requiredSkills.matched}/${requiredSkills.total}
+                  <br>
+                  Preferred: ${preferredSkills.matched}/${preferredSkills.total}
+                </small>
+              </div>
+            `;
+          }
+        }
+        
+        candidateCard.innerHTML = `
+          <div class="card-body position-relative">
+            <div class="match-score ${matchColor} text-white">
+              <h3>${candidate.matchPercentage}%</h3>
+              <small>Match Score</small>
+              ${matchDetails}
+            </div>
+            
+            <div class="candidate-info">
+              <h5 class="card-title">${candidate.name}</h5>
+              <p class="card-text"><strong>Skills:</strong> ${candidate.skills}</p>
+              <p class="card-text"><strong>Education:</strong> ${candidate.education}</p>
+              <p class="card-text"><strong>Experience:</strong> ${candidate.experience}</p>
+            </div>
+            
+            <div class="mt-3">
+              <button class="btn btn-shortlist" onclick="shortlistCandidate(${candidate.id})">
+                Shortlist
+              </button>
+              <button class="btn btn-interview ms-2" onclick="scheduleInterview(${candidate.id})">
+                Schedule Interview
+              </button>
+            </div>
+          </div>
+        `;
+        
+        resultsContainer.appendChild(candidateCard);
       });
-      
-      resultsDiv.innerHTML = html;
     }
 
     function shortlistCandidate(candidateId) {

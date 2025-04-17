@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Shortlisted Candidates - ResuMatch</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --primary-color: #4CAF50;
+      --primary-dark: #2e7d32;
+      --secondary-color: #3498db;
+      --secondary-dark: #2980b9;
+      --danger-color: #e74c3c;
+      --danger-dark: #c0392b;
+      --text-dark: #2c3e50;
+      --text-light: #666;
+      --bg-light: #f5f7fa;
+      --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: var(--text-dark);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      color: var(--text-dark);
+      font-weight: 700;
+    }
+
+    .header p {
+      font-size: 1.1em;
+      color: var(--text-light);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .candidates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 25px;
+      margin-top: 30px;
+    }
+
+    .candidate-card {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: var(--card-shadow);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .candidate-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .candidate-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--primary-color);
+    }
+
+    .candidate-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .candidate-name {
+      font-size: 1.3em;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .candidate-info {
+      margin-bottom: 20px;
+    }
+
+    .candidate-info p {
+      margin: 10px 0;
+      color: var(--text-light);
+      line-height: 1.5;
+    }
+
+    .candidate-info strong {
+      color: var(--text-dark);
+      font-weight: 500;
+    }
+
+    .candidate-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.95rem;
+    }
+
+    .btn i {
+      font-size: 1rem;
+    }
+
+    .btn-remove {
+      background: var(--danger-color);
+      color: white;
+    }
+
+    .btn-remove:hover {
+      background: var(--danger-dark);
+    }
+
+    .btn-interview {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .btn-interview:hover {
+      background: var(--primary-dark);
+    }
+
+    .no-candidates {
+      text-align: center;
+      padding: 60px 30px;
+      background: white;
+      border-radius: 12px;
+      color: var(--text-light);
+      box-shadow: var(--card-shadow);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .no-candidates i {
+      color: #ccc;
+      margin-bottom: 20px;
+      font-size: 3.5rem;
+    }
+
+    .no-candidates h3 {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: var(--text-dark);
+    }
+
+    .no-candidates p {
+      font-size: 1.1rem;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: var(--secondary-color);
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      margin-bottom: 30px;
+      transition: var(--transition);
+      font-weight: 500;
+    }
+
+    .back-btn:hover {
+      background: var(--secondary-dark);
+      transform: translateY(-2px);
+    }
+
+    .back-btn i {
+      font-size: 1rem;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .candidate-count {
+      background: var(--primary-color);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: var(--card-shadow);
+      transform: translateY(-20px);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-overlay.active .modal {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .modal-header {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .modal-header i {
+      font-size: 2.5rem;
+      color: var(--danger-color);
+      margin-bottom: 15px;
+    }
+
+    .modal-header h3 {
+      font-size: 1.5rem;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+    }
+
+    .modal-header p {
+      color: var(--text-light);
+      font-size: 1rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 25px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+    }
+
+    .btn-cancel {
+      background: var(--bg-light);
+      color: var(--text-dark);
+    }
+
+    .btn-cancel:hover {
+      background: #e0e0e0;
+    }
+
+    @media (max-width: 768px) {
+      .candidates-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+      
+      .candidate-actions {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="page-header">
+      <a href="/recruiter-home.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+      </a>
+      <div id="candidate-count" class="candidate-count">
+        <i class="fas fa-users"></i> <span id="count">0</span> Candidates
+      </div>
+    </div>
+    
+    <div class="header">
+      <h1>Shortlisted Candidates</h1>
+      <p>Manage your shortlisted candidates and schedule interviews</p>
+    </div>
+
+    <div id="candidates-container" class="candidates-grid">
+      <!-- Candidates will be loaded here dynamically -->
+    </div>
+  </div>
+
+  <!-- Add the modal HTML -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal">
+      <div class="modal-header">
+        <i class="fas fa-exclamation-circle"></i>
+        <h3>Remove Candidate</h3>
+        <p>Are you sure you want to remove this candidate from your shortlist?</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-cancel" onclick="closeModal()">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <button class="btn btn-remove" id="confirmRemove">
+          <i class="fas fa-trash"></i> Remove
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Load shortlisted candidates when the page loads
+    document.addEventListener('DOMContentLoaded', loadShortlistedCandidates);
+
+    function loadShortlistedCandidates() {
+      fetch('/get-shortlisted-candidates')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            displayCandidates(data.candidates);
+            updateCandidateCount(data.candidates.length);
+          } else {
+            showNoCandidates();
+            updateCandidateCount(0);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showNoCandidates();
+          updateCandidateCount(0);
+        });
+    }
+
+    function updateCandidateCount(count) {
+      document.getElementById('count').textContent = count;
+    }
+
+    function displayCandidates(candidates) {
+      const container = document.getElementById('candidates-container');
+      
+      if (candidates.length === 0) {
+        showNoCandidates();
+        return;
+      }
+
+      container.innerHTML = candidates.map(candidate => `
+        <div class="candidate-card">
+          <div class="candidate-header">
+            <h3 class="candidate-name">${candidate.name}</h3>
+          </div>
+          <div class="candidate-info">
+            <p><strong>Skills:</strong> ${candidate.skills}</p>
+            <p><strong>Education:</strong> ${candidate.education}</p>
+            <p><strong>Experience:</strong> ${candidate.experience}</p>
+          </div>
+          <div class="candidate-actions">
+            <button onclick="scheduleInterview(${candidate.id})" class="btn btn-interview">
+              <i class="fas fa-calendar-check"></i> Schedule Interview
+            </button>
+            <button onclick="showModal(${candidate.id})" class="btn btn-remove">
+              <i class="fas fa-trash"></i> Remove
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function showNoCandidates() {
+      const container = document.getElementById('candidates-container');
+      container.innerHTML = `
+        <div class="no-candidates">
+          <i class="fas fa-users"></i>
+          <h3>No Shortlisted Candidates</h3>
+          <p>You haven't shortlisted any candidates yet.</p>
+        </div>
+      `;
+    }
+
+    let currentCandidateId = null;
+
+    function showModal(candidateId) {
+      currentCandidateId = candidateId;
+      const modal = document.getElementById('confirmModal');
+      modal.classList.add('active');
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('confirmModal');
+      modal.classList.remove('active');
+      currentCandidateId = null;
+    }
+
+    function removeFromShortlist(candidateId) {
+      showModal(candidateId);
+    }
+
+    // Add event listener for the confirm button
+    document.getElementById('confirmRemove').addEventListener('click', () => {
+      if (currentCandidateId) {
+        fetch('/remove-from-shortlist', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ candidateId: currentCandidateId })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            closeModal();
+            loadShortlistedCandidates(); // Reload the list
+          } else {
+            alert(data.message || 'Failed to remove candidate');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred while removing the candidate');
+        });
+      }
+    });
+
+    // Close modal when clicking outside
+    document.getElementById('confirmModal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        closeModal();
+      }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    function scheduleInterview(candidateId) {
+      fetch('/schedule-interview', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ candidateId })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Interview scheduled successfully!');
+        } else {
+          alert(data.message || 'Failed to schedule interview');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while scheduling the interview');
+      });
+    }
+  </script>
+</body>
+</html> 

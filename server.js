@@ -14,7 +14,7 @@ const app = express();
 const port = 3000;
 
 // Middleware
-app.use(express.static('./'));
+app.use(express.static(__dirname));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // Parse JSON bodies
 app.use(session({
@@ -31,24 +31,87 @@ const db = mysql.createConnection({
   database: 'test'
 });
 
+// Create shortlist table if it doesn't exist
+db.query(`
+  CREATE TABLE IF NOT EXISTS shortlist (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    recruiter_id INT NOT NULL,
+    candidate_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (recruiter_id) REFERENCES hiring_reg(id),
+    FOREIGN KEY (candidate_id) REFERENCES seekers(id),
+    UNIQUE KEY unique_shortlist (recruiter_id, candidate_id)
+  )
+`, (err) => {
+  if (err) {
+    console.error('Error creating shortlist table:', err);
+  } else {
+    console.log('Shortlist table ready');
+    
+    // Try to add unique constraint if it doesn't exist
+    db.query(`
+      ALTER TABLE shortlist
+      ADD UNIQUE INDEX unique_shortlist (recruiter_id, candidate_id)
+    `, (err) => {
+      if (err) {
+        // Ignore error if constraint already exists
+        if (!err.message.includes('Duplicate key name')) {
+          console.error('Error adding unique constraint:', err);
+        }
+      } else {
+        console.log('Added unique constraint to shortlist table');
+      }
+      
+      // Clean up any existing duplicate entries
+      db.query(`
+        DELETE s1 FROM shortlist s1
+        INNER JOIN shortlist s2 
+        WHERE s1.id > s2.id 
+        AND s1.recruiter_id = s2.recruiter_id 
+        AND s1.candidate_id = s2.candidate_id
+      `, (err) => {
+        if (err) {
+          console.error('Error cleaning up duplicate entries:', err);
+        } else {
+          console.log('Cleaned up duplicate entries in shortlist table');
+        }
+      });
+    });
+  }
+});
+
 // Multer setup
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, './uploads'),
+  destination: (req, file, cb) => cb(null, 'uploads'),
   filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
 });
 const upload = multer({ storage });
 
 // Create uploads directory if it doesn't exist
-if (!fs.existsSync('./uploads')) {
-  fs.mkdirSync('./uploads');
+if (!fs.existsSync('uploads')) {
+  fs.mkdirSync('uploads');
 }
 
 // Email transporter setup
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // true for 465, false for other ports
   auth: {
-    user: 'your-email@gmail.com', // Replace with your email
-    pass: 'your-app-specific-password' // Replace with your app-specific password
+    user: 'resumatch5@gmail.com',
+    pass: 'padbpexnshjbkciv' // Replace this with the App Password you generate
+  },
+  tls: {
+    rejectUnauthorized: false
+  }
+});
+
+// Verify email configuration
+transporter.verify(function(error, success) {
+  if (error) {
+    console.log('Email configuration error:', error);
+  } else {
+    console.log('Email server is ready to send messages');
   }
 });
 
@@ -58,7 +121,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  res.sendFile(path.join('./', 'register.html'));
+  res.sendFile(path.join(__dirname, 'register.html'));
 });
 
 app.post('/register', (req, res) => {
@@ -74,7 +137,7 @@ app.post('/register', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  res.sendFile(path.join('./', 'login.html'));
+  res.sendFile(path.join(__dirname, 'login.html'));
 });
 
 app.post('/login', (req, res) => {
@@ -96,7 +159,7 @@ app.post('/login', (req, res) => {
 
 app.get('/home', (req, res) => {
   if (!req.session.user) return res.redirect('/login');
-  res.sendFile(path.join('./', 'home.html'));
+  res.sendFile(path.join(__dirname, 'home.html'));
 });
 
 app.post('/upload-resume', upload.single('resume'), async (req, res) => {
@@ -394,7 +457,7 @@ function extractEducation(text) {
 
 // Routes (Recruiters)
 app.get('/recruiter-register', (req, res) => {
-  res.sendFile(path.join('./', 'recruiter-register.html'));
+  res.sendFile(path.join(__dirname, 'recruiter-register.html'));
 });
 
 app.post('/recruiter-register', async (req, res) => {
@@ -416,7 +479,7 @@ app.post('/recruiter-register', async (req, res) => {
 });
 
 app.get('/recruiter-login', (req, res) => {
-  res.sendFile(path.join('./', 'recruiter-login.html'));
+  res.sendFile(path.join(__dirname, 'recruiter-login.html'));
 });
 
 app.post('/recruiter-login', async (req, res) => {
@@ -444,7 +507,7 @@ app.post('/recruiter-login', async (req, res) => {
 
 app.get('/recruiter-home', (req, res) => {
   if (!req.session.recruiter) return res.redirect('/recruiter-login');
-  res.sendFile(path.join('./', 'recruiter-home.html'));
+  res.sendFile(path.join(__dirname, 'recruiter-home.html'));
 });
 
 app.post('/search-candidates', async (req, res) => {
@@ -467,7 +530,8 @@ Return the result in the following JSON format:
 {
   "requirements": ["list of general requirements"],
   "candidate_criteria": {
-    "skills": ["list of technical skills"],
+    "required_skills": ["list of required technical skills"],
+    "preferred_skills": ["list of preferred technical skills"],
     "education": ["education requirements if any"],
     "experience": ["experience requirements if any"]
   }
@@ -481,7 +545,15 @@ Job Description:
     const textOutput = apiResponse.candidates?.[0]?.content?.parts?.[0]?.text || '';
     console.log('Gemini API response:', textOutput);
 
-    let parsedCriteria = { requirements: [], candidate_criteria: { skills: [] } };
+    let parsedCriteria = {
+      requirements: [],
+      candidate_criteria: {
+        required_skills: [],
+        preferred_skills: [],
+        education: [],
+        experience: []
+      }
+    };
 
     try {
       // Try to extract JSON from the response
@@ -496,12 +568,17 @@ Job Description:
 
     console.log('Parsed criteria:', parsedCriteria);
 
+    // Combine required and preferred skills for search
+    const allSkills = [
+      ...(parsedCriteria.candidate_criteria.required_skills || []),
+      ...(parsedCriteria.candidate_criteria.preferred_skills || [])
+    ];
+
     // If no skills found, fall back to keyword-based search
-    if (!parsedCriteria.candidate_criteria.skills || parsedCriteria.candidate_criteria.skills.length === 0) {
+    if (allSkills.length === 0) {
       console.log('Falling back to keyword-based search');
       
-      // Simple keyword-based search
-      const query = 'SELECT * FROM seekers WHERE 1=1 AND skills LIKE ?';
+      const query = 'SELECT * FROM seekers WHERE skills LIKE ?';
       const params = [`%${jobDescription}%`];
       
       console.log('SQL Query:', query, 'Params:', params);
@@ -515,39 +592,34 @@ Job Description:
         console.log('Query results:', results);
         
         // Calculate match percentage for each candidate
-        const candidates = results.map(candidate => {
-          // Simple match percentage calculation
-          const matchPercentage = 100; // All results are considered 100% match for simplicity
-          
-          return {
-            id: candidate.id,
-            name: candidate.name,
-            skills: candidate.skills,
-            education: candidate.education,
-            experience: candidate.experience,
-            matchPercentage
-          };
-        });
+        const candidates = results.map(candidate => ({
+          id: candidate.id,
+          name: candidate.name,
+          skills: candidate.skills,
+          education: candidate.education,
+          experience: candidate.experience,
+          matchPercentage: 100 // All results are considered 100% match for simplicity
+        }));
         
-        res.json({ success: true, candidates: candidates });
+        res.json({
+          success: true,
+          candidates: candidates,
+          jobCriteria: parsedCriteria.candidate_criteria
+        });
       });
     } else {
       // Use the skills extracted by Gemini API
-      const skills = parsedCriteria.candidate_criteria.skills;
-      
-      // Build SQL query with OR conditions for skills
       let query = 'SELECT * FROM seekers WHERE 1=1';
       const params = [];
       
-      if (skills.length > 0) {
-        query += ' AND (';
-        query += skills.map(() => 'skills LIKE ?').join(' OR ');
-        query += ')';
-        
-        skills.forEach(skill => {
-          params.push(`%${skill}%`);
-        });
-      }
+      // Add conditions for each skill
+      query += ' AND (';
+      query += allSkills.map(() => 'skills LIKE ?').join(' OR ');
+      query += ')';
+      
+      allSkills.forEach(skill => {
+        params.push(`%${skill}%`);
+      });
       
       console.log('SQL Query:', query, 'Params:', params);
       
@@ -561,17 +633,35 @@ Job Description:
         
         // Calculate match percentage for each candidate
         const candidates = results.map(candidate => {
-          // Count how many skills the candidate has
-          let matchedSkills = 0;
+          // Count how many required and preferred skills the candidate has
+          let matchedRequiredSkills = 0;
+          let matchedPreferredSkills = 0;
           
-          for (const skill of skills) {
-            if (candidate.skills.toLowerCase().includes(skill.toLowerCase())) {
-              matchedSkills++;
+          const candidateSkills = candidate.skills.toLowerCase();
+          
+          parsedCriteria.candidate_criteria.required_skills?.forEach(skill => {
+            if (candidateSkills.includes(skill.toLowerCase())) {
+              matchedRequiredSkills++;
             }
-          }
+          });
           
-          // Calculate match percentage
-          const matchPercentage = Math.round((matchedSkills / skills.length) * 100);
+          parsedCriteria.candidate_criteria.preferred_skills?.forEach(skill => {
+            if (candidateSkills.includes(skill.toLowerCase())) {
+              matchedPreferredSkills++;
+            }
+          });
+          
+          // Calculate match percentage with higher weight for required skills
+          const requiredSkillsCount = parsedCriteria.candidate_criteria.required_skills?.length || 0;
+          const preferredSkillsCount = parsedCriteria.candidate_criteria.preferred_skills?.length || 0;
+          
+          let matchPercentage = 0;
+          if (requiredSkillsCount > 0) {
+            matchPercentage += (matchedRequiredSkills / requiredSkillsCount) * 70; // 70% weight for required skills
+          }
+          if (preferredSkillsCount > 0) {
+            matchPercentage += (matchedPreferredSkills / preferredSkillsCount) * 30; // 30% weight for preferred skills
+          }
           
           return {
             id: candidate.id,
@@ -579,11 +669,28 @@ Job Description:
             skills: candidate.skills,
             education: candidate.education,
             experience: candidate.experience,
-            matchPercentage
+            matchPercentage: Math.round(matchPercentage),
+            matchDetails: {
+              requiredSkills: {
+                matched: matchedRequiredSkills,
+                total: requiredSkillsCount
+              },
+              preferredSkills: {
+                matched: matchedPreferredSkills,
+                total: preferredSkillsCount
+              }
+            }
           };
         });
         
-        res.json({ success: true, candidates: candidates });
+        // Sort candidates by match percentage in descending order
+        candidates.sort((a, b) => b.matchPercentage - a.matchPercentage);
+        
+        res.json({
+          success: true,
+          candidates: candidates,
+          jobCriteria: parsedCriteria.candidate_criteria
+        });
       });
     }
   } catch (error) {
@@ -592,57 +699,191 @@ Job Description:
   }
 });
 
+// Route to get shortlisted candidates
+app.get('/get-shortlisted-candidates', (req, res) => {
+  if (!req.session.recruiter) {
+    return res.status(401).json({ success: false, message: 'Not logged in' });
+  }
+
+  const recruiterId = req.session.recruiter.id;
+
+  db.query(`
+    SELECT s.* 
+    FROM shortlist sl
+    JOIN seekers s ON sl.candidate_id = s.id
+    WHERE sl.recruiter_id = ?
+  `, [recruiterId], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    res.json({ success: true, candidates: results });
+  });
+});
+
+// Route to add candidate to shortlist
 app.post('/shortlist', (req, res) => {
-  if (!req.session.recruiter) return res.status(401).json({ success: false, message: 'Not logged in' });
+  if (!req.session.recruiter) {
+    return res.status(401).json({ success: false, message: 'Not logged in' });
+  }
 
   const { candidateId } = req.body;
   const recruiterId = req.session.recruiter.id;
 
+  // First check if the candidate is already shortlisted
   db.query(
-    'INSERT INTO shortlist (recruiter_id, candidate_id) VALUES (?, ?)',
+    'SELECT * FROM shortlist WHERE recruiter_id = ? AND candidate_id = ?',
     [recruiterId, candidateId],
-    (err) => {
-      if (err) return res.status(500).json({ success: false, message: 'Failed to shortlist' });
-      res.json({ success: true, message: 'Candidate shortlisted!' });
+    (err, results) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ success: false, message: 'Database error' });
+      }
+
+      if (results.length > 0) {
+        return res.json({ success: false, message: 'Candidate is already shortlisted' });
+      }
+
+      // If not already shortlisted, add to shortlist
+      db.query(
+        'INSERT INTO shortlist (recruiter_id, candidate_id) VALUES (?, ?)',
+        [recruiterId, candidateId],
+        (err) => {
+          if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ success: false, message: 'Failed to shortlist candidate' });
+          }
+          res.json({ success: true, message: 'Candidate shortlisted successfully' });
+        }
+      );
     }
   );
 });
 
-app.post('/schedule-interview', (req, res) => {
-  if (!req.session.recruiter) return res.status(401).json({ success: false, message: 'Not logged in' });
+// Route to remove candidate from shortlist
+app.post('/remove-from-shortlist', (req, res) => {
+  if (!req.session.recruiter) {
+    return res.status(401).json({ success: false, message: 'Not logged in' });
+  }
 
   const { candidateId } = req.body;
   const recruiterId = req.session.recruiter.id;
 
   db.query(
-    'SELECT email FROM seekers WHERE id = ?',
-    [candidateId],
-    (err, results) => {
-      if (err || results.length === 0) return res.status(500).json({ success: false, message: 'Candidate not found' });
-
-      const candidateEmail = results[0].email;
-
-      const mailOptions = {
-        from: 'your-email@gmail.com',
-        to: candidateEmail,
-        subject: 'Interview Opportunity',
-        text: `Dear Candidate, ${req.session.recruiter.name} from ${req.session.recruiter.company} is interested in interviewing you. Please reply to schedule a time.`
-      };
-
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) return res.status(500).json({ success: false, message: 'Failed to send email' });
-
-        db.query(
-          'INSERT INTO interview (recruiter_id, candidate_id, status, email_sent_at) VALUES (?, ?, ?, NOW())',
-          [recruiterId, candidateId, 'contacted'],
-          (err) => {
-            if (err) return res.status(500).json({ success: false, message: 'Failed to schedule interview' });
-            res.json({ success: true, message: 'Interview scheduled and email sent!' });
-          }
-        );
-      });
+    'DELETE FROM shortlist WHERE recruiter_id = ? AND candidate_id = ?',
+    [recruiterId, candidateId],
+    (err) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ success: false, message: 'Failed to remove candidate' });
+      }
+      res.json({ success: true, message: 'Candidate removed from shortlist' });
     }
   );
+});
+
+// Route to serve the shortlisted candidates page
+app.get('/shortlisted-candidates', (req, res) => {
+  console.log('Accessing shortlisted-candidates route');
+  console.log('Session:', req.session);
+  
+  if (!req.session.recruiter) {
+    console.log('No recruiter in session, redirecting to login');
+    return res.redirect('/recruiter-login');
+  }
+  
+  console.log('Serving shortlisted-candidates.html file');
+  res.sendFile(path.join(__dirname, 'shortlisted-candidates.html'));
+});
+
+app.post('/schedule-interview', (req, res) => {
+  if (!req.session.recruiter) {
+    return res.status(401).json({ success: false, message: 'Not logged in' });
+  }
+
+  const { candidateId } = req.body;
+  const recruiterId = req.session.recruiter.id;
+
+  // First, ensure the interviews table exists
+  db.query(`
+    CREATE TABLE IF NOT EXISTS interviews (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      recruiter_id INT NOT NULL,
+      candidate_id INT NOT NULL,
+      status VARCHAR(20) NOT NULL,
+      scheduled_at DATETIME NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (recruiter_id) REFERENCES hiring_reg(id),
+      FOREIGN KEY (candidate_id) REFERENCES seekers(id)
+    )
+  `, (err) => {
+    if (err) {
+      console.error('Error creating interviews table:', err);
+      return res.status(500).json({ success: false, message: 'Database setup error' });
+    }
+
+    // Now proceed with getting candidate email
+    db.query(
+      'SELECT email, name FROM seekers WHERE id = ?',
+      [candidateId],
+      (err, results) => {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(500).json({ success: false, message: 'Database error' });
+        }
+
+        if (results.length === 0) {
+          return res.status(404).json({ success: false, message: 'Candidate not found' });
+        }
+
+        const candidateEmail = results[0].email;
+        const candidateName = results[0].name;
+
+        // Prepare email content
+        const mailOptions = {
+          from: 'resumatch5@gmail.com',
+          to: candidateEmail,
+          subject: 'Interview Invitation from ResuMatch',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #4CAF50;">Interview Invitation</h2>
+              <p>Dear ${candidateName},</p>
+              <p>We are pleased to inform you that ${req.session.recruiter.name} from ${req.session.recruiter.company} is interested in interviewing you for a potential opportunity.</p>
+              <p>Please reply to this email to schedule a convenient time for the interview.</p>
+              <p>Best regards,<br>ResuMatch Team</p>
+            </div>
+          `
+        };
+
+        // Send email
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            console.error('Email error:', error);
+            return res.status(500).json({ success: false, message: 'Failed to send email' });
+          }
+
+          // Record the interview request in the database
+          db.query(
+            'INSERT INTO interviews (recruiter_id, candidate_id, status, scheduled_at) VALUES (?, ?, ?, NOW())',
+            [recruiterId, candidateId, 'pending'],
+            (err) => {
+              if (err) {
+                console.error('Database error:', err);
+                return res.status(500).json({ success: false, message: 'Failed to record interview' });
+              }
+
+              res.json({ 
+                success: true, 
+                message: 'Interview invitation sent successfully',
+                emailInfo: info.response
+              });
+            }
+          );
+        });
+      }
+    );
+  });
 });
 
 app.post('/logout', (req, res) => {
@@ -652,6 +893,22 @@ app.post('/logout', (req, res) => {
       return res.status(500).json({ success: false, message: 'Error logging out' });
     }
     res.json({ success: true, message: 'Logged out successfully' });
+  });
+});
+
+// Route to get all candidates
+app.get('/get-all-candidates', (req, res) => {
+  if (!req.session.recruiter) {
+    return res.status(401).json({ success: false, message: 'Not logged in' });
+  }
+
+  db.query('SELECT * FROM seekers', (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+
+    res.json({ success: true, candidates: results });
   });
 });
 
